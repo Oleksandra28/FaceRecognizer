@@ -9,9 +9,7 @@ import numpy as np
 
 class SPCA():
 
-    def __init__(self, cross_validation_percent = 0.2):
-
-        self.cross_validation_percent = cross_validation_percent
+    def __init__(self):
 
         self.variance_percent_retained = 0.99
 
@@ -34,17 +32,15 @@ class SPCA():
 
         features = atleast2d_or_csr(features)
 
-        print 'features dimensions : ', features.shape
-
         if self.mean_ is not None:
             features = features - self.mean_
 
         features = np.dot(features, self.U_reduce);
-        #features = safe_sparse_dot(features, self.components.T)
 
-        # features = np.dot(np.transpose(self.U[:, :self.k_components]), features)
-        print 'features dimensions : ', features.shape
+        ##features = safe_sparse_dot(features, self.components.T)
+        ## features = np.dot(np.transpose(self.U[:, :self.k_components]), features)
 
+        #print 'features dimensions : ', features.shape
 
         return features
     #--------------------------------------------------------------------------------------------------------------
@@ -77,7 +73,7 @@ class SPCA():
         while variance_retained < self.variance_percent_retained:
             self.k_components += 1
             variance_retained = np.sum(S[:self.k_components]) / np.sum(S)
-            print 'k_components : ', self.k_components, ' variance : ', variance_retained
+            #print 'k_components : ', self.k_components, ' variance : ', variance_retained
 
         if self.k_components is None:
             self.k_components = n_features
