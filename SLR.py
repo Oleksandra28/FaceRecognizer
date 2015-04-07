@@ -26,15 +26,18 @@ class SLR():
         prediction = self.sigmoid(z)
         print 'prediction : ', prediction.shape
 
-        prediction = prediction.astype(int)
-        print prediction
-        return prediction
-        #return self._convert_prediction(prediction)
+        #prediction = prediction.astype(int)
+        #print prediction
+        #return prediction
+        return self._convert_prediction(prediction)
 #------------------------------------------------------------------------------------------------------------------
     def _convert_prediction(self, prediction, threshold = 0.5):
         result = np.empty(len(prediction), dtype=bool)
         for i, p in enumerate(prediction):
             np.insert(result, i, bool(p >= threshold))
+        print 'result :'
+        result = result.astype(int)
+        print result
         return result
 
 

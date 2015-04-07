@@ -142,14 +142,17 @@ if __name__ == "__main__":
 
     # create new test dataset with labels 1 or 0
     # 2d array where each column consists of labels for the corresponding class
-    one_vs_all_labels = np.empty([len(features_test_PCA_2), n_classes], dtype=int)
+    one_vs_all_labels = np.empty([len(features_test_PCA_2), n_classes], dtype=bool)
     print 'one_vs_all_labels dims : ', one_vs_all_labels.shape
     for current_class in range(n_classes):
         labels_class = np.copy(labels_test)
+        print ' === ', labels_class
         for i, label in enumerate(labels_class):
             labels_class[i] = 1 if (label == current_class) else 0
+        print '--- ', labels_class
         np.insert(one_vs_all_labels, current_class, labels_class)
-    print 'one_vs_all_labels : '
+    print 'c : '
+    one_vs_all_labels = one_vs_all_labels.astype(int)
     print one_vs_all_labels
     max_pred = -1
     best_estimator  = -1
