@@ -45,7 +45,7 @@ def classification_SVD_values(features_train_, features_test_, labels_train_, la
     for current_class in range(n_classes):
         print 'fitting thetas for classifier for class ', current_class
         classifier = SLR()
-        classifier.fit_thetas(thetas)
+        classifier.set_thetas(thetas)
     print 'all classifiers : ', len(log_reg_classifiers)
 
     ### testing

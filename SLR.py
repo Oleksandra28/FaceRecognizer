@@ -13,12 +13,10 @@ class SLR():
         #print 'sigmoid : ', result
         return result
 #------------------------------------------------------------------------------------------------------------------
-    def fit_thetas(self, thetas):
-        #print 'given thetas dimensions : ', thetas.shape
+
+    def set_thetas(self, thetas):
         self.thetas = thetas
-        #print 'thetas : ', thetas
-        #self.thetas = np.transpose(thetas)
-        #print 'thetas transposed dimensions : ', self.thetas.shape
+
 #------------------------------------------------------------------------------------------------------------------
     def predict(self, features):
 
@@ -28,11 +26,20 @@ class SLR():
         return self._convert_prediction(prediction)
 #------------------------------------------------------------------------------------------------------------------
     def _convert_prediction(self, prediction, threshold = 0.5):
-        result = np.empty(len(prediction), dtype=bool)
+        #result = np.empty(prediction.shape, dtype=int)
+        result = None
+        #TODO vectorize
         for i, p in enumerate(prediction):
-            np.insert(result, i, bool(p >= threshold))
-        print 'result :', result.shape
-        result = result.astype(int)
+            val = p+threshold
+            print 'val before ', val
+            val = np.floor(val)
+            print 'val after ', val
+            result = np.insert(result, i, val)#np.isclose(p, threshold))#bool(p >= threshold))
+        print 'result before convertion:', result.shape
+        print result
+        #result = result.astype(int)
+        print 'result vector converted ',result.shape
+        result.squeeze()
         print result
         return result
 #------------------------------------------------------------------------------------------------------------------
@@ -40,7 +47,6 @@ class SLR():
     def fit_thetas_grad_descent(self, initial_thetas, features_train, labels_train, learning_rate = 0.01, n_iters = 100):
         thetas = initial_thetas
         m = features_train.shape[0]
-        print 'm = ', m
         j_history = np.empty([m, n_iters])
 
         for i in range(n_iters):
@@ -49,37 +55,46 @@ class SLR():
             predictions = self.predict_thetas(features_train, thetas)
 
             current_cost = self.compute_cost_vectorized(predictions, labels_train)
-            print 'current_cost : ', current_cost.shape
-            print 'j_his', j_history.shape
+
             # save the cost J in every iteration
-            #np.insert(j_history, i, current_cost)#, axis=1)
+            #np.insert(j_history, i, current_cost, axis=1)
+            current_cost = current_cost.squeeze()
+            print 'current_cost : ', current_cost.shape
             j_history[:, i] = current_cost
 
             # compute gradient
             grad = np.multiply(np.dot(np.transpose(features_train), (predictions-labels_train)), 1/m)
-            print 'grad: ', grad.shape
-            grad = grad[:, None]
-            thetas -= grad*learning_rate
 
+            print 'grad: ', grad.shape
+            thetas = thetas - np.multiply(grad, learning_rate)
+            print 'thetas shape on each iter ', thetas.shape
+        #end for loop
+
+        thetas = np.around(thetas, decimals=3)
         print 'thetas after grad descent : ', thetas
-        self.fit_thetas(thetas)
+        self.set_thetas(thetas)
 
 #------------------------------------------------------------------------------------------------------------------
     def compute_cost_vectorized(self, predicted_labels, real_labels):
 
-        #predicted_labels = predicted_labels[:, None]
         print 'predicted_labels : ', predicted_labels.shape
         print predicted_labels
 
-        #real_labels = real_labels[:, None]
         print 'real_labels : ', real_labels.shape
         real_labels = np.asarray(real_labels, dtype=int)
         print real_labels
 
         m = predicted_labels.shape[0]
-        #total_error_sum = (np.multiply(real_labels, np.log(predicted_labels)) + np.multiply((1-real_labels), np.log(1- predicted_labels)))
-        total_error_sum = np.add(np.multiply(real_labels, np.log(predicted_labels)), np.multiply((1-real_labels), np.log(1- predicted_labels)))
+
+        positive_term = np.multiply(real_labels, np.log(predicted_labels))
+        print 'positive_term dimension ', positive_term.shape
+
+        negative_term = np.multiply((1-real_labels), np.log(1- predicted_labels))
+        print 'negative_term dimension ', negative_term.shape
+
+        total_error_sum = np.add(positive_term, negative_term)
         print 'total_error_sum ', total_error_sum.shape
+
         j = np.around(np.multiply(total_error_sum, (-1/m)),decimals=3)
 
         return j
@@ -88,14 +103,20 @@ class SLR():
     def predict_thetas(self, features, thetas):
         z = np.dot(features, thetas)
         prediction = self.sigmoid(z)
-        return self._convert_prediction(prediction)
+        #print '  1111 pred in predict_thetas ', prediction.shape
+        #print prediction
+        prediction = np.around(prediction, decimals=0)
+        #print '  2222 pred in predict_thetas ', prediction.shape
+        #print prediction
+        return prediction
+        # weird convertion goes on here
+        #return self._convert_prediction(prediction)
 
 #------------------------------------------------------------------------------------------------------------------
     def predict_thetas_prob(self, features, thetas):
         z = np.dot(features, thetas)
         prediction = self.sigmoid(z)
         prediction = np.around(prediction, decimals=3)
-        print 'prediction : ', prediction
         return prediction
 
 #------------------------------------------------------------------------------------------------------------------
