@@ -116,7 +116,9 @@ class SLR():
     def predict_thetas_prob(self, features, thetas):
         z = np.dot(features, thetas)
         prediction = self.sigmoid(z)
-        prediction = np.around(prediction, decimals=3)
+        predict_thetas_prob = np.around(prediction, decimals=3)
+        #print 'predict_thetas_prob', predict_thetas_prob.shape
+        #print predict_thetas_prob
         return prediction
 
 #------------------------------------------------------------------------------------------------------------------

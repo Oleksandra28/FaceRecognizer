@@ -60,14 +60,10 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
         for i, label in enumerate(labels_class):
             labels_class[i] = 1 if (label == current_class) else 0
         # end of for loop of class labels
-        #one_vs_all_labels_train = np.insert(one_vs_all_labels_train, current_class, labels_class)
         labels_class = labels_class[:, None]
-        #one_vs_all_labels_train[:,j] = np.reshape(one_vs_all_labels_train[:,j], (one_vs_all_labels_train[:,j].shape[0], 1))
-        print 'labels_class shape ', labels_class.shape
         labels_class = [ [el] for el in labels_class]
-
         one_vs_all_labels_train[:,j] = labels_class
-    # end of for
+    # end of for outer loop
     print 'one_vs_all_labels dims : ', one_vs_all_labels_train.shape
 
     print 'one_vs_all_labels_train : '
@@ -109,6 +105,18 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     print 'result_matrix dimensions : ', result_matrix.shape
     result_matrix = np.around(result_matrix, decimals=3)
     print result_matrix
+
+    # calculate the result vector of predictions
+    # select the max element from each row
+    # store the index of the corresponding column(i.e. class) in the result vector
+    indices = result_matrix.argmax(axis=1)
+    print 'len result vector : ', len(indices)
+    indices = [[index] for index in indices]
+    print 'indices.shape '#, indices.shape
+    print indices
+
+
+
 
     """
     # cur_labels_to_predict = one_vs_all_labels_test[:, current_class]
