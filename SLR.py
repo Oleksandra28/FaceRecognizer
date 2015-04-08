@@ -78,11 +78,11 @@ class SLR():
     def compute_cost_vectorized(self, predicted_labels, real_labels):
 
         print 'predicted_labels : ', predicted_labels.shape
-        print predicted_labels
-
+        #print predicted_labels
+        predicted_labels = np.asarray(predicted_labels, dtype=int)
         print 'real_labels : ', real_labels.shape
         real_labels = np.asarray(real_labels, dtype=int)
-        print real_labels
+        #print real_labels
 
         m = predicted_labels.shape[0]
 

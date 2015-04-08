@@ -56,14 +56,17 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     # end of for
     """
     for (k,j), current_class in np.ndenumerate(one_vs_all_labels_train):
-        labels_class = np.copy(labels_test)
+        labels_class = np.copy(labels_train)
         for i, label in enumerate(labels_class):
             labels_class[i] = 1 if (label == current_class) else 0
         # end of for loop of class labels
         #one_vs_all_labels_train = np.insert(one_vs_all_labels_train, current_class, labels_class)
         labels_class = labels_class[:, None]
         #one_vs_all_labels_train[:,j] = np.reshape(one_vs_all_labels_train[:,j], (one_vs_all_labels_train[:,j].shape[0], 1))
-        one_vs_all_labels_train[:,j] = labels_class[:, :]
+        print 'labels_class shape ', labels_class.shape
+        labels_class = [ [el] for el in labels_class]
+
+        one_vs_all_labels_train[:,j] = labels_class
     # end of for
     print 'one_vs_all_labels dims : ', one_vs_all_labels_train.shape
 
