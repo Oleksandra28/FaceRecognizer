@@ -12,26 +12,26 @@ class SLR():
 #------------------------------------------------------------------------------------------------------------------
     def sigmoid(self, z):
         z = Decimal(str(-z))
+        z = round(z, 9)
         exponent = Decimal(np.exp(z))
         denominator = (1 + exponent)
         result = Decimal(1)/Decimal(denominator)
-        print 'sigmoid : ', result
+
         # convert result to prevert overflow and underflow
         min = Decimal(0.000000001)
         max = Decimal(0.999999999)
         if result.compare(min) == Decimal('-1'):
-            result = max
-        elif result.compare(max) == Decimal('1'):
             result = min
+        elif result.compare(max) == Decimal('1'):
+            result = max
+
+        #result = np.nan_to_num(result)
+
         result = round(result, 9)
-        #result = float(result.to_eng_string)
-        print 'result converted : ', result
         return result
 #------------------------------------------------------------------------------------------------------------------
-
     def set_thetas(self, thetas):
         self.thetas = thetas
-
 #------------------------------------------------------------------------------------------------------------------
     def predict(self, features):
 
@@ -58,28 +58,25 @@ class SLR():
         return result
 #------------------------------------------------------------------------------------------------------------------
     # calculate parameters theta using gradient descent
-    def fit_thetas_grad_descent(self, initial_thetas, features_train, labels_train, learning_rate = 0.01, n_iters = 100):
+    def fit_thetas_grad_descent(self, initial_thetas, features_train, labels_train, learning_rate = 0.001, n_iters = 10):
         thetas = initial_thetas
         m = features_train.shape[0]
-        j_history = np.empty([m, n_iters])
 
+        current_thetas = np.around(thetas, decimals=2)
         for i in range(n_iters):
-
+            print 'iteration ', i
             # compute cost of a particular choice of theta
-            #predictions = self.predict_thetas(features_train, thetas)
 
-            thetas = np.around(thetas, decimals=2)
-            predictions = self.predict_thetas_prob(features_train, thetas)
-
+            predictions = self.predict_thetas_prob(features_train, current_thetas)
             current_cost = self.compute_cost_vectorized(predictions, labels_train)
 
-            # save the cost J in every iteration
-            current_cost = current_cost.squeeze()
-            j_history[:, i] = current_cost
-
             # compute gradient
-            grad = np.multiply(np.dot(np.transpose(features_train), (predictions-labels_train)), 1/m)
-            thetas = thetas - np.multiply(grad, learning_rate)
+            grad = np.multiply(np.dot(np.transpose(features_train), (predictions-labels_train)), 1./m)
+            grad = np.multiply(grad, learning_rate)
+
+            lambda_ = 1.
+            regularization_term = sum(np.multiply(pow(current_thetas, 2.), lambda_/m))
+            current_thetas = np.add(np.subtract(current_thetas, grad), regularization_term)
         #end for loop
 
         #print 'thetas after grad descent : ', thetas
@@ -88,24 +85,47 @@ class SLR():
 #------------------------------------------------------------------------------------------------------------------
     def compute_cost_vectorized(self, predicted_labels, real_labels):
 
-        predicted_labels = np.around(predicted_labels, decimals=3)
+        predicted_labels = np.around(predicted_labels, decimals=9)
 
         m = predicted_labels.shape[0]
 
         positive_term = np.multiply(real_labels, np.log(predicted_labels))
-        print 'pos term', positive_term
-        positive_term = np.around(positive_term, decimals=9)
 
+        min = Decimal(0.000000001)
+        max = Decimal(0.999999999)
+
+        for i, p in enumerate(positive_term):
+            temp  = Decimal(str(p[0]))
+            if temp.compare(min) == Decimal('-1'):
+                positive_term[i] = min
+            elif temp.compare(max) == Decimal('1'):
+                positive_term[i] = max
+            positive_term[i] = round(positive_term[i], 9)
+
+        positive_term = np.around(positive_term, decimals=9)
+        #positive_term = np.nan_to_num(positive_term)
         negative_term = np.multiply((1-real_labels), np.log(1- predicted_labels))
-        print 'neg term', negative_term
+
+        for i, p in enumerate(negative_term):
+            temp  = Decimal(str(p[0]))
+            if temp.compare(min) == Decimal('-1'):
+                negative_term[i] = min
+            elif temp.compare(max) == Decimal('1'):
+                negative_term[i] = max
+            negative_term[i] = round(negative_term[i], 9)
+
         negative_term = np.around(negative_term, decimals=9)
 
+        #negative_term = np.nan_to_num(negative_term)
         total_error_sum = np.add(positive_term, negative_term)
+        print 'total_error_sum = ', sum(total_error_sum)
 
-        j = np.around(np.multiply(total_error_sum, (-(1./m))),decimals=3)
+        j = np.around(np.multiply(total_error_sum, (-(1./m))),decimals=9)
 
-        #print 'cost after ', j
-        return j
+        #cost = np.sum(j)
+        #print 'cost ', cost
+        cost = j
+        return cost
 
 #------------------------------------------------------------------------------------------------------------------
     def predict_thetas(self, features, thetas):
@@ -121,8 +141,8 @@ class SLR():
         thetas = np.around(thetas, decimals=4)
         z = np.dot(features, thetas)
         prediction = self.sigmoid(z)
-        prediction = np.around(prediction, decimals=9)
-        print 'prediction calculation checked. parent commit 5a236802b653ea288abcc90d844567a2244683f3'
+        #prediction = np.around(prediction, decimals=9)
+        #print 'prediction calculation checked. parent commit 5a236802b653ea288abcc90d844567a2244683f3'
         return prediction
 
 #------------------------------------------------------------------------------------------------------------------

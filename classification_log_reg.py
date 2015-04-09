@@ -20,7 +20,7 @@ from visualization import *
 
 
 
-def classification_log_reg(features_train_, features_test_, labels_train_, labels_test_, labels_, dataset_):
+def classification_log_reg(features_train_, features_test_, labels_train_, labels_test_, labels_, dataset_, thetas_):
 
     dataset = dataset_
     labels = labels_
@@ -33,41 +33,51 @@ def classification_log_reg(features_train_, features_test_, labels_train_, label
     labels_train = labels_train_
     labels_test = labels_test_
 
+    features_train_PCA = features_train
+    features_test_PCA = features_test
+
     classifier = linear_model.LogisticRegression()
-    # extract features from data
-    pca = SPCA()
-    # PCA for training data
-    pca.fit(features_train)
-    print 'train features dimensions before PCA : ', features_train.shape
-    features_train_PCA = pca.transform(features_train)
-    print 'train features dimensions after PCA : ', features_train_PCA.shape
 
+    # # extract features from data
+    # pca = SPCA()
+    # # PCA for training data
+    # pca.fit(features_train)
+    # print 'train features dimensions before PCA : ', features_train.shape
+    # features_train_PCA = pca.transform(features_train)
+    # print 'train features dimensions after PCA : ', features_train_PCA.shape
+    #
     classifier.fit(features_train_PCA, labels_train)
-
-    # PCA for test data features
-    print 'test features dimensions before PCA : ', features_test.shape
-    features_test_PCA = pca.transform(features_test)
-    print 'test features dimensions after PCA : ', features_test_PCA.shape
+    #
+    # # PCA for test data features
+    # print 'test features dimensions before PCA : ', features_test.shape
+    # features_test_PCA = pca.transform(features_test)
+    # print 'test features dimensions after PCA : ', features_test_PCA.shape
 
     # measure accuracy
     prediction = classifier.predict(features_test_PCA)
     accuracy = accuracy_score(prediction, labels_test)
     print 'accuracy given by logistic regression classifier: ', accuracy
     print '==============================================================================================='
-
-    print 'features_test ', features_test.shape, h, w
-    print 'labels_test ', labels_test.shape
-
+    print 'features ', features_test.shape
+    print 'labels ', len(labels_test)
     plot_gallery(features_test, labels_test, h, w)
 
     # plot the gallery of the most significative eigenfaces
 
-    labels_PCA = ["%d" % i for i in range(features_test_PCA.shape[0])]
+    labels_PCA = ["%d" % i for i in labels_test]
     print 'features_test_PCA ', features_test_PCA.shape
     print 'labels_PCA ', len(labels_PCA)
-    #eigenfaces = np.array(features_test_PCA)
-    #eigenfaces = eigenfaces.reshape((pca.k_components, h/8, w/8))
+
+    #eigenfaces = np.array(features_test_PCA.shape)
+    # eigenfaces = eigenfaces.reshape((pca.k_components, h/8, w/8))
+    #eigenfaces = np.reshape(eigenfaces, (len(thetas_), h/8, w/8))
     #plot_gallery(eigenfaces, labels_PCA, h/8, w/8)
+    n_components = features_test_PCA.shape[1]
+    h = int(np.sqrt(n_components))
+    w = n_components // h
+    eigenfaces = features_test_PCA.reshape((n_components, h, w))
+    plot_gallery(eigenfaces, labels_PCA, h, w)
+
     plt.show()
 
     return accuracy

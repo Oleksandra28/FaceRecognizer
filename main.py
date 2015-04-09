@@ -40,6 +40,22 @@ if __name__ == "__main__":
     test_percent = 0.3
     features_train, features_test, labels_train, labels_test = train_test_split(data, labels, test_size = test_percent)
 
+    # extract features from data
+    pca = SPCA()
+    # PCA for training data
+    pca.fit(features_train)
+    features_train_PCA = pca.transform(features_train)
+    features_test_PCA = pca.transform(features_test)
+
+    # features_train_PCA = np.multiply(features_train_PCA, 1000)
+    # features_test_PCA = np.multiply(features_test_PCA, 1000)
+
+    # thetas returned by PCA
+    thetas = np.array(pca.S[:pca.k_components])
+    # add dimension
+    thetas = thetas[:, None]
+    print 'theta dimensions : ', thetas.shape
+
     #########################################################################################################
 
     accuracy_SVD = 0
@@ -47,8 +63,10 @@ if __name__ == "__main__":
     accuracy_grad_descent = 0
 
     #accuracy_SVD = classification_SVD_values(features_train, features_test, labels_train, labels_test, labels, dataset)
-    #accuracy_log_reg = classification_log_reg(features_train, features_test, labels_train, labels_test, labels, dataset)
-    accuracy_grad_descent = classification_gradient_descent(features_train, features_test, labels_train, labels_test, labels, dataset)
+    #accuracy_log_reg = classification_log_reg(features_train, features_test, labels_train, labels_test, labels, dataset, thetas)
+
+    accuracy_log_reg = classification_gradient_descent(features_train_PCA, features_test_PCA, labels_train, labels_test, labels, dataset, thetas)
+    accuracy_grad_descent = classification_gradient_descent(features_train_PCA, features_test_PCA, labels_train, labels_test, labels, dataset, thetas)
 
     print '##################################################################################'
     print 'accuracy using SVD weights : ', accuracy_SVD

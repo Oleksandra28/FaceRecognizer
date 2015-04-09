@@ -40,8 +40,6 @@ class SPCA():
         ##features = safe_sparse_dot(features, self.components.T)
         ## features = np.dot(np.transpose(self.U[:, :self.k_components]), features)
 
-        #print 'features dimensions : ', features.shape
-
         return features
     #--------------------------------------------------------------------------------------------------------------
 
@@ -57,6 +55,10 @@ class SPCA():
         # Center data
         self.mean_ = np.mean(X, axis=0)
         X -= self.mean_
+
+        # Feature scaling
+        std_dev = np.std(X, axis=0)
+        X = np.divide(X, std_dev)
 
         # Compute covariance matrix
         cov_matrix = np.dot(np.transpose(X), X)/n_samples

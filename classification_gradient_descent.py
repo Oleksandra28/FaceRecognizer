@@ -11,7 +11,7 @@ from SLR import SLR
 
 from visualization import *
 
-def classification_gradient_descent(features_train_, features_test_, labels_train_, labels_test_, labels_, dataset_):
+def classification_gradient_descent(features_train_, features_test_, labels_train_, labels_test_, labels_, dataset_, thetas_):
 
     dataset = dataset_
     labels = labels_
@@ -20,7 +20,7 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     features_test = features_test_
     labels_train = labels_train_
     labels_test = labels_test_
-
+    """
     # extract features from data
     pca_2 = SPCA()
     # PCA for training data
@@ -33,32 +33,47 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     # add dimension
     thetas = thetas[:, None]
     print 'theta dimensions : ', thetas.shape
+    """
+
+    thetas = thetas_
+
+    features_train_PCA = features_train
+    features_test_PCA = features_test
 
     unique = np.unique(labels)
     n_classes = len(unique)
     print 'number of classes : ', n_classes
 
-    ### training
+    ###################  training ###################
 
     # create new training dataset with labels 1 or 0
     # 2d array where each column consists of labels for the corresponding class
-    one_vs_all_labels_train = np.empty((len(features_train_PCA_2), n_classes), dtype=bool)
+    one_vs_all_labels_train = np.empty((len(features_train_PCA), n_classes), dtype=bool)
 
     print 'one_vs_all_labels dims : ', one_vs_all_labels_train.shape
 
-    for (k,j), current_class in np.ndenumerate(one_vs_all_labels_train):
-        labels_class = np.copy(labels_train)
+    #for (k,j), current_class in np.ndenumerate(one_vs_all_labels_train):
+    for j in range(n_classes):
+        #labels_class = np.copy(labels_train)
+        labels_class = np.empty_like(labels_train)
+        labels_class[:] = labels_train
         for i, label in enumerate(labels_class):
-            labels_class[i] = 1 if (label == current_class) else 0
+            #labels_class[i] = 1 if (label == current_class) else 0
+            if label == j:
+                labels_class[i] = 1
+            else:
+                labels_class[i] = 0
         # end of for loop of class labels
         labels_class = labels_class[:, None]
-        labels_class = [ [el] for el in labels_class]
-        one_vs_all_labels_train[:,j] = labels_class
+        #labels_class = [el for el in labels_class]
+        np.insert(one_vs_all_labels_train, labels_class[:, 0], j, axis=1)
+        #one_vs_all_labels_train[:,j] = labels_class[:, 0]
+
     # end of for outer loop
     print 'one_vs_all_labels dims : ', one_vs_all_labels_train.shape
 
     print 'one_vs_all_labels_train : '
-    #one_vs_all_labels_train = one_vs_all_labels_train.astype(int)
+    one_vs_all_labels_train = one_vs_all_labels_train.astype(int)
     print one_vs_all_labels_train
 
     # for every class create logistic regression classifier
@@ -69,16 +84,16 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
         classifier = SLR()
         current_labels = one_vs_all_labels_train[:, i]
         current_labels = current_labels[:, None]
-        classifier.fit_thetas_grad_descent(thetas, features_train_PCA_2, current_labels)
+        classifier.fit_thetas_grad_descent(thetas, features_train_PCA, current_labels)
         log_reg_classifiers[i] = classifier
     #end of for loop
     print 'all classifiers : ', len(log_reg_classifiers)
 
-    ### testing
+    ################### testing ###################
 
     # create new test dataset with labels 1 or 0
     # 2d array where each column consists of labels for the corresponding class
-    one_vs_all_labels_test = np.empty([len(features_test_PCA_2), n_classes], dtype=bool)
+    one_vs_all_labels_test = np.empty([len(features_test_PCA), n_classes], dtype=bool)
     print 'one_vs_all_labels dims : ', one_vs_all_labels_test.shape
 
     # result vector to store computed probabilities and select the highest one
@@ -88,17 +103,18 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     print 'result_matrix dims ', result_matrix.shape
 
     for i, clr in enumerate(log_reg_classifiers):
-        pred = log_reg_classifiers[i].predict_thetas_prob(features_test_PCA_2, log_reg_classifiers[i].thetas)
+        pred = log_reg_classifiers[i].predict_thetas_prob(features_test_PCA, log_reg_classifiers[i].thetas)
         #np.insert(result_matrix, i, pred, axis=1)
-        #print 'pred 1111', pred
-        #pred = [ [p] for p in pred]
-        #print 'pred 2222', pred
-        pred = [ p for p in pred]
-        result_matrix[:,i] = pred
+        #pred = [ p for p in pred]
         print 'pred for class ', i
+        print 'pred[0]', pred[0]
+        print 'pred[1]', pred[1]
+        print 'pred[20]', pred[20]
+        result_matrix[:,i] = pred[:, 0]
+
 
     print 'result_matrix dimensions : ', result_matrix.shape
-    result_matrix = np.around(result_matrix, decimals=3)
+    result_matrix = np.around(result_matrix, decimals=9)
     print result_matrix
 
     # calculate the result vector of predictions
@@ -106,7 +122,7 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     # store the index of the corresponding column(i.e. class) in the result vector
     indices = result_matrix.argmax(axis=1)
     print 'len result vector : ', len(indices)
-    indices = [[index] for index in indices]
+    indices = [index for index in indices]
     print 'indices.shape '#, indices.shape
     print indices
 
