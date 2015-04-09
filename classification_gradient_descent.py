@@ -45,16 +45,7 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     one_vs_all_labels_train = np.empty((len(features_train_PCA_2), n_classes), dtype=bool)
 
     print 'one_vs_all_labels dims : ', one_vs_all_labels_train.shape
-    """
-    for (k,j), current_class in np.ndenumerate(one_vs_all_labels_train):
-        labels_class = np.copy(labels_test)
-        for i, label in enumerate(labels_class):
-            labels_class[i] = 1 if (label == current_class) else 0
-        # end of for loop of class labels
-        #one_vs_all_labels_train = np.insert(one_vs_all_labels_train, current_class, labels_class)
-        #one_vs_all_labels_train[:,j] = labels_class
-    # end of for
-    """
+
     for (k,j), current_class in np.ndenumerate(one_vs_all_labels_train):
         labels_class = np.copy(labels_train)
         for i, label in enumerate(labels_class):
@@ -78,13 +69,9 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
         classifier = SLR()
         current_labels = one_vs_all_labels_train[:, i]
         current_labels = current_labels[:, None]
-        #np.reshape(current_labels, (one_vs_all_labels_train.shape[0], 1))
-        print 'current labels shape : ', current_labels.shape
-
         classifier.fit_thetas_grad_descent(thetas, features_train_PCA_2, current_labels)
         log_reg_classifiers[i] = classifier
-        #np.insert(log_reg_classifiers, current_class, classifier)
-
+    #end of for loop
     print 'all classifiers : ', len(log_reg_classifiers)
 
     ### testing
@@ -94,13 +81,21 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
     one_vs_all_labels_test = np.empty([len(features_test_PCA_2), n_classes], dtype=bool)
     print 'one_vs_all_labels dims : ', one_vs_all_labels_test.shape
 
+    # result vector to store computed probabilities and select the highest one
+    result_vector = np.empty(one_vs_all_labels_test.shape, dtype=float)
     # result matrix to store computed probabilities and select the highest one
-    result_matrix = np.empty(one_vs_all_labels_test.shape, dtype=float)
+    result_matrix = np.empty([ one_vs_all_labels_test.shape[0], len(log_reg_classifiers)], dtype=float)
+    print 'result_matrix dims ', result_matrix.shape
 
-    for current_class in range(n_classes):
-        for i, clr in enumerate(log_reg_classifiers):
-            pred = log_reg_classifiers[i].predict_thetas_prob(features_test_PCA_2, clr.thetas)
-            np.insert(result_matrix, i, pred, axis=1)
+    for i, clr in enumerate(log_reg_classifiers):
+        pred = log_reg_classifiers[i].predict_thetas_prob(features_test_PCA_2, log_reg_classifiers[i].thetas)
+        #np.insert(result_matrix, i, pred, axis=1)
+        #print 'pred 1111', pred
+        #pred = [ [p] for p in pred]
+        #print 'pred 2222', pred
+        pred = [ p for p in pred]
+        result_matrix[:,i] = pred
+        print 'pred for class ', i
 
     print 'result_matrix dimensions : ', result_matrix.shape
     result_matrix = np.around(result_matrix, decimals=3)
