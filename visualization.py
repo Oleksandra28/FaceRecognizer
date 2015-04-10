@@ -22,15 +22,18 @@ def print_faces(images, target, top_n):
 #---------------------------------------------------------------------------------------------------------
 
 def plot_gallery(images_, titles_, h, w, n_row=3, n_col=3):
-    images = np.array(images_)
-    titles = np.array(titles_)
+    images = np.empty(images_.shape)
+    titles = np.empty(titles_.shape)
+
+    images = images[:]
+    titles = titles[:]
 
     plt.figure(figsize=(1.8 * n_col, 2.4 * n_row))
     plt.subplots_adjust(bottom=0, left=.01, right=.99, top=.90, hspace=.35)
     for i in range(n_row * n_col):
         plt.subplot(n_row, n_col, i + 1)
         image = images[i]
-        image = image.squeeze()
+        #image = image.squeeze()
         image = image.reshape((h, w))
         plt.imshow(image, cmap=plt.cm.gray)
         plt.title(titles[i], size=12)

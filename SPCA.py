@@ -37,9 +37,6 @@ class SPCA():
 
         features = np.dot(features, self.U_reduce);
 
-        ##features = safe_sparse_dot(features, self.components.T)
-        ## features = np.dot(np.transpose(self.U[:, :self.k_components]), features)
-
         return features
     #--------------------------------------------------------------------------------------------------------------
 
@@ -75,7 +72,6 @@ class SPCA():
         while variance_retained < self.variance_percent_retained:
             self.k_components += 1
             variance_retained = np.sum(S[:self.k_components]) / np.sum(S)
-            #print 'k_components : ', self.k_components, ' variance : ', variance_retained
 
         if self.k_components is None:
             self.k_components = n_features

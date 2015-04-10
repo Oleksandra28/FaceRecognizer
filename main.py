@@ -65,11 +65,11 @@ if __name__ == "__main__":
     #accuracy_SVD = classification_SVD_values(features_train, features_test, labels_train, labels_test, labels, dataset)
     #accuracy_log_reg = classification_log_reg(features_train, features_test, labels_train, labels_test, labels, dataset, thetas)
 
-    accuracy_log_reg = classification_gradient_descent(features_train_PCA, features_test_PCA, labels_train, labels_test, labels, dataset, thetas)
+    accuracy_log_reg = classification_log_reg(features_train_PCA, features_test_PCA, labels_train, labels_test, labels, dataset, thetas)
     accuracy_grad_descent = classification_gradient_descent(features_train_PCA, features_test_PCA, labels_train, labels_test, labels, dataset, thetas)
 
     print '##################################################################################'
-    print 'accuracy using SVD weights : ', accuracy_SVD
+    #print 'accuracy using SVD weights : ', accuracy_SVD
     print 'accuracy using log_reg     : ', accuracy_log_reg
     print 'accuracy using grad descent: ', accuracy_grad_descent
 

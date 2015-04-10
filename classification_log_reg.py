@@ -60,22 +60,23 @@ def classification_log_reg(features_train_, features_test_, labels_train_, label
     print '==============================================================================================='
     print 'features ', features_test.shape
     print 'labels ', len(labels_test)
-    plot_gallery(features_test, labels_test, h, w)
+
+    old_len = features_test.shape[1]
+    h = w = 14
+    new_features_test_array = features_test[:, :-(old_len-196)]
+    print h, w, new_features_test_array.shape
+
+    plot_gallery(new_features_test_array, labels_test, h, w)
 
     # plot the gallery of the most significative eigenfaces
 
-    labels_PCA = ["%d" % i for i in labels_test]
-    print 'features_test_PCA ', features_test_PCA.shape
-    print 'labels_PCA ', len(labels_PCA)
+    labels_PCA = [ i for i in labels_test]
 
-    #eigenfaces = np.array(features_test_PCA.shape)
-    # eigenfaces = eigenfaces.reshape((pca.k_components, h/8, w/8))
-    #eigenfaces = np.reshape(eigenfaces, (len(thetas_), h/8, w/8))
-    #plot_gallery(eigenfaces, labels_PCA, h/8, w/8)
-    n_components = features_test_PCA.shape[1]
-    h = int(np.sqrt(n_components))
-    w = n_components // h
-    eigenfaces = features_test_PCA.reshape((n_components, h, w))
+    labels_PCA = np.asarray(labels_PCA)
+    print 'labels_PCA ', labels_PCA.shape
+
+    old_len = features_test_PCA.shape[1]
+    eigenfaces = features_test_PCA[:, :-(old_len-196)]
     plot_gallery(eigenfaces, labels_PCA, h, w)
 
     plt.show()

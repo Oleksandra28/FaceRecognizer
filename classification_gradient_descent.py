@@ -114,7 +114,7 @@ def classification_gradient_descent(features_train_, features_test_, labels_trai
 
 
     print 'result_matrix dimensions : ', result_matrix.shape
-    result_matrix = np.around(result_matrix, decimals=9)
+    result_matrix = np.around(result_matrix, decimals=5)
     print result_matrix
 
     # calculate the result vector of predictions
